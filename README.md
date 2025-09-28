@@ -295,32 +295,32 @@ This section demonstrates the complete Task 3 implementation - a React frontend 
 ### 1. Kubernetes Backend Infrastructure
 
 **Kubernetes Pods and Services Status**
-![Kubernetes Status](screenshots/Screenshot%202025-09-28%20213442.png)
-*Shows the backend application (`kaiburr-app`) and MongoDB (`mongo`) running in Kubernetes pods, with the `kaiburr-service` NodePort service exposing the API.*
+![Kubernetes Status](screenshots/Screenshot%202025-09-28%20213616.png)
+*Shows the backend application (`kaiburr-app`) and MongoDB (`mongo`) running in Kubernetes pods, with the `kaiburr-service` NodePort service exposing the API. Demonstrates the complete Kubernetes deployment with kubectl commands.*
 
 ### 2. Application Homepage & Task Management
 
 **Main Dashboard with Task List**
-![Application Homepage](screenshots/Screenshot%202025-09-28%20213453.png)
+![Application Homepage](screenshots/Screenshot%202025-09-28%20213442.png)
 *The main Task Manager interface displaying existing tasks loaded from the Kubernetes-deployed backend. Shows the clean, responsive design with task cards and action buttons.*
 
-### 3. Task Creation & Form Validation
+### 3. Application Dashboard - Alternative View
 
-**Add New Task Form**
-![Task Creation Form](screenshots/Screenshot%202025-09-28%20213512.png)
-*Demonstrates the task creation form with input fields for ID, Name, Owner, and Command. Shows form validation and user-friendly interface design.*
+**Task Management Dashboard**
+![Dashboard View](screenshots/Screenshot%202025-09-28%20213453.png)
+*Another view of the main dashboard showing the task management interface with full functionality - create, view, search, execute, and delete tasks. Demonstrates the responsive Tailwind CSS design.*
 
 ### 4. Task Execution & Kubernetes Integration
 
 **Task Execution with Kubernetes Pod Creation**
-![Task Execution](screenshots/Screenshot%202025-09-28%20213536.png)
+![Task Execution](screenshots/Screenshot%202025-09-28%20213512.png)
 *Shows task execution attempt demonstrating the Kubernetes integration. The "kubectl: not found" error proves the backend is running in a Kubernetes pod and attempting to create new pods for command execution (as required by Task 2).*
 
 ### 5. Search Functionality & Real-time Updates
 
 **Search and Filter Tasks**
-![Search Functionality](screenshots/Screenshot%202025-09-28%20213616.png)
-*Demonstrates the search functionality allowing users to filter tasks by name, with real-time updates and responsive design.*
+![Search Functionality](screenshots/Screenshot%202025-09-28%20213536.png)
+*Demonstrates the search functionality allowing users to filter tasks by name, with real-time updates and responsive design. Shows how the interface dynamically filters results based on user input.*
 
 ### Key Features Demonstrated:
 
