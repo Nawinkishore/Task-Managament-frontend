@@ -82,6 +82,7 @@ const App: React.FC = () => {
   };
 
   // Search tasks
+  
   const handleSearch = async () => {
     if (!searchTerm) return fetchTasks();
     try {
