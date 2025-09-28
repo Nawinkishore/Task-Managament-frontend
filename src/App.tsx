@@ -11,7 +11,6 @@ import {
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [responseMsg, setResponseMsg] = useState("");
   const [newTask, setNewTask] = useState<Task>({
     id: "",
     name: "",
@@ -19,35 +18,43 @@ const App: React.FC = () => {
     command: "",
     taskExecutions: [],
   });
+  const [loading, setLoading] = useState(false);
+  const [messageText, setMessageText] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
 
-  // Fetch all tasks
+  // Fetch tasks
   const fetchTasks = async () => {
+    setLoading(true);
     try {
       const res = await getTasks();
       setTasks(res.data);
-      setResponseMsg("");
     } catch (err: any) {
-      const msg =
-        typeof err.response?.data === "string"
-          ? err.response.data
-          : JSON.stringify(err.response?.data, null, 2);
-      setResponseMsg(`❌ ${msg}`);
+      showMessage(err.response?.data || "Error fetching tasks", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Create new task
+  // Show message
+  const showMessage = (msg: string, type: "success" | "error") => {
+    setMessageText(msg);
+    setMessageType(type);
+    setTimeout(() => setMessageText(null), 4000);
+  };
+
+  // Create task
   const handleCreate = async () => {
+    if (!newTask.id || !newTask.name || !newTask.owner || !newTask.command) {
+      showMessage("Please fill all fields", "error");
+      return;
+    }
     try {
       const res = await createOrUpdateTask(newTask);
-      setResponseMsg(`✅ Task "${res.data.name}" created successfully`);
+      showMessage(`Task "${res.data.name}" created successfully`, "success");
       setNewTask({ id: "", name: "", owner: "", command: "", taskExecutions: [] });
       fetchTasks();
     } catch (err: any) {
-      const msg =
-        typeof err.response?.data === "string"
-          ? err.response.data
-          : JSON.stringify(err.response?.data, null, 2);
-      setResponseMsg(`❌ ${msg}`);
+      showMessage(err.response?.data || "Error creating task", "error");
     }
   };
 
@@ -55,44 +62,33 @@ const App: React.FC = () => {
   const handleExecute = async (id: string) => {
     try {
       const res = await executeTask(id);
-      setResponseMsg(`✅ Task executed: ${res.data.id}`);
+      showMessage(`Task executed: ${res.data.id}`, "success");
       fetchTasks();
     } catch (err: any) {
-      const msg =
-        typeof err.response?.data === "string"
-          ? err.response.data
-          : JSON.stringify(err.response?.data, null, 2);
-      setResponseMsg(`❌ ${msg}`);
+      showMessage(err.response?.data || "Error executing task", "error");
     }
   };
 
   // Delete task
   const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this task?")) return;
     try {
-      const res = await deleteTask(id);
-      setResponseMsg(res.data);
+      await deleteTask(id);
+      showMessage("Task deleted successfully", "success");
       fetchTasks();
     } catch (err: any) {
-      const msg =
-        typeof err.response?.data === "string"
-          ? err.response.data
-          : JSON.stringify(err.response?.data, null, 2);
-      setResponseMsg(`❌ ${msg}`);
+      showMessage(err.response?.data || "Error deleting task", "error");
     }
   };
 
   // Search tasks
   const handleSearch = async () => {
+    if (!searchTerm) return fetchTasks();
     try {
       const res = await searchTasks(searchTerm);
       setTasks(res.data);
-      setResponseMsg(`🔹 Found ${res.data.length} task(s)`);
     } catch (err: any) {
-      const msg =
-        typeof err.response?.data === "string"
-          ? err.response.data
-          : JSON.stringify(err.response?.data, null, 2);
-      setResponseMsg(`❌ ${msg}`);
+      showMessage(err.response?.data || "Error searching tasks", "error");
     }
   };
 
@@ -101,23 +97,24 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto font-sans">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Task Manager</h1>
+    <div className="min-h-screen bg-gray-100 p-6 font-sans">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Task Manager</h1>
 
-      {/* Response message */}
-      {responseMsg && (
+      {/* Message */}
+      {messageText && (
         <div
-          className={`mb-4 p-3 rounded ${responseMsg.startsWith("✅")
-              ? "bg-green-100 text-green-800 border border-green-300"
-              : "bg-red-100 text-red-800 border border-red-300"
-            }`}
+          className={`mb-4 p-3 rounded border ${
+            messageType === "success"
+              ? "bg-green-100 text-green-800 border-green-300"
+              : "bg-red-100 text-red-800 border-red-300"
+          }`}
         >
-          <pre className="whitespace-pre-wrap">{responseMsg}</pre>
+          {messageText}
         </div>
       )}
 
-      {/* Add new task */}
-      <div className="mb-6 p-4 border rounded bg-white shadow">
+      {/* Add Task Form */}
+      <div className="mb-6 p-4 bg-white rounded shadow">
         <h2 className="text-xl font-semibold mb-3">Add New Task</h2>
         <div className="flex flex-wrap gap-3 mb-3">
           <input
@@ -175,12 +172,12 @@ const App: React.FC = () => {
         </button>
       </div>
 
-      {/* Task list */}
+      {/* Task List */}
       <ul className="space-y-4">
         {tasks.map((task) => (
           <li key={task.id} className="p-4 border rounded bg-white shadow">
             <div className="flex justify-between items-start">
-              <div>
+              <div className="flex-1">
                 <strong className="text-lg text-gray-800">{task.name}</strong> -{" "}
                 <em className="text-gray-600">{task.owner}</em>
                 <div className="text-sm text-gray-700 mt-1">
@@ -198,10 +195,9 @@ const App: React.FC = () => {
                     </pre>
                   </div>
                 )}
-
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 ml-4">
                 <button
                   onClick={() => handleExecute(task.id)}
                   className="bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
